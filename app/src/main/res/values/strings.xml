@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Popular Movies</string>
+    <string name="title_movie_detail">Movie Detail</string>
+
+    <string name="sync_account_type">popularmovies.nanodegree.mikhails.co.za</string>
+    <string name="content_authority">za.co.mikhails.nanodegree.popularmovies.app</string>
+
+    <string name="unknown_release_date">Unknown</string>
+    <string name="unknown_vote_average">Unknown</string>
+
+    <string name="action_sort_by_popular">Most popular</string>
+    <string name="action_sort_by_rating">Highest-rated</string>
+
+    <string name="action_about">About</string>
+    <string name="about_text">Created by Mikhail Sukharuchkin sukharuchkinm@gmail.com</string>
+
+    <string name="tmdb_notice">This product uses the TMDb API but is not endorsed or certified by TMDb.</string>
+    <string name="tmdb_popular_url">http://api.themoviedb.org/3/discover/movie</string>
+    <string name="tmdb_poster_url">http://image.tmdb.org/t/p/w185</string>
+    <string name="tmdb_api_key">[YOUR API KEY]</string>
+</resources>
