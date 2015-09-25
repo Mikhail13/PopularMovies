@@ -21,7 +21,6 @@ import za.co.mikhails.nanodegree.popularmovies.sync.ThemoviedbSyncAdapter;
 
 public class MovieListFragment extends Fragment implements android.app.LoaderManager.LoaderCallbacks<Cursor>,
         AdapterView.OnItemClickListener, AbsListView.OnScrollListener {
-    public static final String TAG = MovieListFragment.class.getName();
 
     private static final int MOVIE_LOADER = 0;
 

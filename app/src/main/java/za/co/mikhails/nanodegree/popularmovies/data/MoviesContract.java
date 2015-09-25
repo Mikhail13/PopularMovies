@@ -2,11 +2,8 @@ package za.co.mikhails.nanodegree.popularmovies.data;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.provider.BaseColumns;
-
-import za.co.mikhails.nanodegree.popularmovies.R;
 
 public class MoviesContract {
 
