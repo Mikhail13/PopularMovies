@@ -21,6 +21,7 @@ import za.co.mikhails.nanodegree.popularmovies.sync.ThemoviedbSyncAdapter;
 
 public class MovieListFragment extends Fragment implements android.app.LoaderManager.LoaderCallbacks<Cursor>,
         AdapterView.OnItemClickListener, AbsListView.OnScrollListener {
+    public static final String TAG = MovieListFragment.class.getName();
 
     private static final int MOVIE_LOADER = 0;
 
@@ -34,12 +35,15 @@ public class MovieListFragment extends Fragment implements android.app.LoaderMan
     public static final int COLUMN_MOVIE_ID = 1;
     public static final int COLUMN_POSTER_PATH = 2;
 
-    private static final String STATE_ACTIVATED_POSITION = "activated_position";
+    private static final String STATE_GRID_POSITION = "state_grid_position";
+    private static final String STATE_GRID_VIEW = "state_grid_view";
 
     private String mSortOrder;
     private Callbacks mCallbacks = sDummyCallbacks;
     private MovieListAdapter mMovieListAdapter;
     private GridView mGridView;
+    private int mRestorePosition = -1;
+    private Parcelable mRestoreGridViewState;
 
     public interface Callbacks {
         void onItemSelected(int id);
@@ -55,27 +59,23 @@ public class MovieListFragment extends Fragment implements android.app.LoaderMan
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        mMovieListAdapter = new MovieListAdapter(getActivity(), null, 0);
         View rootView = inflater.inflate(R.layout.fragment_movie_list, container, false);
 
         mGridView = (GridView) rootView.findViewById(R.id.gridview);
+        mMovieListAdapter = new MovieListAdapter(getActivity(), null, 0);
         mGridView.setAdapter(mMovieListAdapter);
         mGridView.setOnItemClickListener(this);
         mGridView.setOnScrollListener(this);
 
-        return rootView;
-    }
 
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        if (savedInstanceState != null && savedInstanceState.containsKey(STATE_GRID_POSITION)) {
+            mRestorePosition = savedInstanceState.getInt(STATE_GRID_POSITION);
+            mRestoreGridViewState = savedInstanceState.getParcelable(STATE_GRID_VIEW);
+        }
+
+        return rootView;
     }
 
     @Override
@@ -102,22 +102,10 @@ public class MovieListFragment extends Fragment implements android.app.LoaderMan
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        Parcelable p = mGridView.onSaveInstanceState();
-        if (p != null) {
-            outState.putParcelable(STATE_ACTIVATED_POSITION, p);
-        }
+        int position = mGridView.getFirstVisiblePosition();
+        outState.putInt(STATE_GRID_POSITION, position);
+        outState.putParcelable(STATE_GRID_VIEW, mGridView.onSaveInstanceState());
         super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public void onViewStateRestored(Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState != null && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION)) {
-            Parcelable p = savedInstanceState.getParcelable(STATE_ACTIVATED_POSITION);
-            if (p != null) {
-                mGridView.onRestoreInstanceState(p);
-            }
-        }
     }
 
     public void setSortOrder(String sortOrder) {
@@ -140,12 +128,13 @@ public class MovieListFragment extends Fragment implements android.app.LoaderMan
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
         Bundle bundle = new Bundle();
         if (mSortOrder != null) {
             bundle.putString(MovieListActivity.SORT_ORDER, mSortOrder);
         }
         getLoaderManager().initLoader(MOVIE_LOADER, bundle, this);
-        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
@@ -157,6 +146,12 @@ public class MovieListFragment extends Fragment implements android.app.LoaderMan
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mMovieListAdapter.swapCursor(data);
+
+        if (mRestorePosition != -1 && mRestoreGridViewState != null && mGridView.getCount() >= mRestorePosition) {
+            mGridView.onRestoreInstanceState(mRestoreGridViewState);
+            mRestorePosition = -1;
+            mRestoreGridViewState = null;
+        }
     }
 
     @Override

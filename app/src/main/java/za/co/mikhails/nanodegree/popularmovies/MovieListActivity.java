@@ -59,14 +59,8 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
         } else {
             Intent detailIntent = new Intent(this, MovieDetailActivity.class);
             detailIntent.putExtra(MovieDetailFragment.MOVIE_ID, id);
-            detailIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(detailIntent);
         }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
     }
 
     @Override
