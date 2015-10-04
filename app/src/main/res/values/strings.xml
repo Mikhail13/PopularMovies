@@ -18,5 +18,6 @@
     <string name="tmdb_notice">This product uses the TMDb API but is not endorsed or certified by TMDb.</string>
     <string name="tmdb_popular_url">http://api.themoviedb.org/3/discover/movie</string>
     <string name="tmdb_poster_url">http://image.tmdb.org/t/p/w185</string>
+    <string name="tmdb_trailer_url">http://api.themoviedb.org/3/movie</string>
     <string name="tmdb_api_key">[YOUR API KEY]</string>
 </resources>

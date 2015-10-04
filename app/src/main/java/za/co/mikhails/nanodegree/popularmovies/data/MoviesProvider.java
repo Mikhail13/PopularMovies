@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 
 import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.MoviesEntry;
+import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.TrailersEntry;
 
 public class MoviesProvider extends ContentProvider {
     private MoviesDbHelper mOpenHelper;
@@ -16,6 +17,7 @@ public class MoviesProvider extends ContentProvider {
 
     static final int MOVIE = 100;
     static final int MOVIES_LIST = 101;
+    static final int TRAILERS_LIST = 102;
 
     @Override
     public boolean onCreate() {
@@ -29,11 +31,15 @@ public class MoviesProvider extends ContentProvider {
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
             case MOVIES_LIST:
-                retCursor = mOpenHelper.getReadableDatabase().query(MoviesContract.MoviesEntry.TABLE_NAME,
+                retCursor = mOpenHelper.getReadableDatabase().query(MoviesEntry.TABLE_NAME,
                         projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             case MOVIE:
-                retCursor = mOpenHelper.getReadableDatabase().query(MoviesContract.MoviesEntry.TABLE_NAME,
+                retCursor = mOpenHelper.getReadableDatabase().query(MoviesEntry.TABLE_NAME,
+                        projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+            case TRAILERS_LIST:
+                retCursor = mOpenHelper.getReadableDatabase().query(TrailersEntry.TABLE_NAME,
                         projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             default:
@@ -48,9 +54,11 @@ public class MoviesProvider extends ContentProvider {
     public String getType(Uri uri) {
         switch (sUriMatcher.match(uri)) {
             case MOVIES_LIST:
-                return MoviesContract.MoviesEntry.CONTENT_ITEM_TYPE;
+                return MoviesEntry.CONTENT_ITEM_TYPE;
             case MOVIE:
-                return MoviesContract.MoviesEntry.CONTENT_TYPE;
+                return MoviesEntry.CONTENT_TYPE;
+            case TRAILERS_LIST:
+                return TrailersEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -66,9 +74,17 @@ public class MoviesProvider extends ContentProvider {
         switch (match) {
             case MOVIE:
             case MOVIES_LIST:
-                long _id = db.insert(MoviesEntry.TABLE_NAME, null, values);
-                if (_id > 0) {
-                    returnUri = MoviesEntry.buildMovieUri(_id);
+                long movieId = db.insert(MoviesEntry.TABLE_NAME, null, values);
+                if (movieId > 0) {
+                    returnUri = MoviesEntry.buildMovieUri(movieId);
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
+                break;
+            case TRAILERS_LIST:
+                long trailerId = db.insert(TrailersEntry.TABLE_NAME, null, values);
+                if (trailerId > 0) {
+                    returnUri = TrailersEntry.buildTrailerUri(trailerId);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
@@ -91,6 +107,9 @@ public class MoviesProvider extends ContentProvider {
             case MOVIES_LIST:
                 rowsDeleted = db.delete(MoviesEntry.TABLE_NAME, selection, selectionArgs);
                 break;
+            case TRAILERS_LIST:
+                rowsDeleted = db.delete(TrailersEntry.TABLE_NAME, selection, selectionArgs);
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -110,6 +129,9 @@ public class MoviesProvider extends ContentProvider {
             case MOVIE:
                 rowsUpdated = db.update(MoviesEntry.TABLE_NAME, values, selection, selectionArgs);
                 break;
+            case TRAILERS_LIST:
+                rowsUpdated = db.update(TrailersEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -126,12 +148,12 @@ public class MoviesProvider extends ContentProvider {
         switch (match) {
             case MOVIE:
                 db.beginTransaction();
-                int returnCount = 0;
+                int returnMoviesCount = 0;
                 try {
                     for (ContentValues value : values) {
                         long _id = db.insertWithOnConflict(MoviesEntry.TABLE_NAME, null, value, SQLiteDatabase.CONFLICT_IGNORE);
                         if (_id != -1) {
-                            returnCount++;
+                            returnMoviesCount++;
                         }
                     }
                     db.setTransactionSuccessful();
@@ -139,7 +161,23 @@ public class MoviesProvider extends ContentProvider {
                     db.endTransaction();
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
-                return returnCount;
+                return returnMoviesCount;
+            case TRAILERS_LIST:
+                db.beginTransaction();
+                int returnTrailersCount = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insertWithOnConflict(TrailersEntry.TABLE_NAME, null, value, SQLiteDatabase.CONFLICT_IGNORE);
+                        if (_id != -1) {
+                            returnTrailersCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnTrailersCount;
             default:
                 return super.bulkInsert(uri, values);
         }
@@ -157,6 +195,7 @@ public class MoviesProvider extends ContentProvider {
 
         matcher.addURI(authority, MoviesContract.PATH_MOVIES, MOVIE);
         matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/*", MOVIES_LIST);
+        matcher.addURI(authority, MoviesContract.PATH_TRAILERS + "/*", TRAILERS_LIST);
         return matcher;
     }
 }
