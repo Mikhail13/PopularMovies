@@ -114,7 +114,7 @@ public class MovieListFragment extends Fragment implements android.app.LoaderMan
         bundle.putString(MovieListActivity.SORT_ORDER, sortOrder);
         getLoaderManager().restartLoader(MOVIE_LOADER, bundle, this);
 
-        ThemoviedbSyncAdapter.syncImmediately(getActivity(), sortOrder.equals(MovieListActivity.SORT_ORDER_POPULARITY) ?
+        ThemoviedbSyncAdapter.syncMoviesListImmediately(getActivity(), sortOrder.equals(MovieListActivity.SORT_ORDER_POPULARITY) ?
                 ThemoviedbSyncAdapter.SORT_BY_POPULAR :
                 ThemoviedbSyncAdapter.SORT_BY_RATING);
 

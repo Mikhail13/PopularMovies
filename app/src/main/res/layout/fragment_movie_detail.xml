@@ -4,74 +4,68 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ScrollView
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <RelativeLayout
+        <TextView
+            android:id="@+id/original_title"
+            style="?android:attr/textAppearanceLarge"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:textIsSelectable="true"
+            tools:context=".MovieDetailFragment" />
 
-            <TextView
-                android:id="@+id/original_title"
-                style="?android:attr/textAppearanceLarge"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:textIsSelectable="true"
-                tools:context=".MovieDetailFragment" />
+        <LinearLayout
+            android:id="@+id/poster_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/original_title"
+            android:layout_marginLeft="16dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/poster"
+                android:layout_width="@dimen/poster_width"
+                android:layout_height="@dimen/poster_height" />
 
             <LinearLayout
-                android:id="@+id/poster_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/original_title"
                 android:layout_marginLeft="16dp"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
-                <ImageView
-                    android:id="@+id/poster"
-                    android:layout_width="@dimen/poster_width"
-                    android:layout_height="@dimen/poster_height" />
-
-                <LinearLayout
+                <TextView
+                    android:id="@+id/release_date"
+                    style="?android:attr/textAppearanceMedium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
-                    android:orientation="vertical">
+                    android:textIsSelectable="true"
+                    tools:context=".MovieDetailFragment" />
 
-                    <TextView
-                        android:id="@+id/release_date"
-                        style="?android:attr/textAppearanceMedium"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textIsSelectable="true"
-                        tools:context=".MovieDetailFragment" />
-
-                    <TextView
-                        android:id="@+id/vote_average"
-                        style="?android:attr/textAppearanceMedium"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textIsSelectable="true"
-                        tools:context=".MovieDetailFragment" />
-
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/vote_average"
+                    style="?android:attr/textAppearanceMedium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textIsSelectable="true"
+                    tools:context=".MovieDetailFragment" />
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/overview"
-                style="?android:attr/textAppearance"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/poster_layout"
-                android:layout_margin="16dp"
-                android:textIsSelectable="true"
-                tools:context=".MovieDetailFragment" />
+        </LinearLayout>
 
-        </RelativeLayout>
+        <TextView
+            android:id="@+id/overview"
+            style="?android:attr/textAppearance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/poster_layout"
+            android:layout_margin="16dp"
+            android:textIsSelectable="true"
+            tools:context=".MovieDetailFragment" />
 
-    </ScrollView>
+    </RelativeLayout>
 
 </FrameLayout>

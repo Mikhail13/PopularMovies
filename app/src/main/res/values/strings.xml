@@ -5,6 +5,7 @@
 
     <string name="sync_account_type">popularmovies.nanodegree.mikhails.co.za</string>
     <string name="content_authority">za.co.mikhails.nanodegree.popularmovies.app</string>
+    <string name="content_authority_trailers">za.co.mikhails.nanodegree.popularmovies.app.trailers</string>
 
     <string name="unknown_release_date">Unknown</string>
     <string name="unknown_vote_average">Unknown</string>
@@ -19,5 +20,8 @@
     <string name="tmdb_popular_url">http://api.themoviedb.org/3/discover/movie</string>
     <string name="tmdb_poster_url">http://image.tmdb.org/t/p/w185</string>
     <string name="tmdb_trailer_url">http://api.themoviedb.org/3/movie</string>
+    <string name="youtube_watch_url">http://www.youtube.com/watch?v={0}</string>
+    <string name="youtube_thumbnail_url">http://img.youtube.com/vi/{0}/default.jpg</string>
+
     <string name="tmdb_api_key">[YOUR API KEY]</string>
 </resources>

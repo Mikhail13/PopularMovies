@@ -17,7 +17,8 @@ public class MoviesProvider extends ContentProvider {
 
     static final int MOVIE = 100;
     static final int MOVIES_LIST = 101;
-    static final int TRAILERS_LIST = 102;
+    static final int TRAILER = 102;
+    static final int TRAILERS_LIST = 103;
 
     @Override
     public boolean onCreate() {
@@ -53,10 +54,12 @@ public class MoviesProvider extends ContentProvider {
     @Override
     public String getType(Uri uri) {
         switch (sUriMatcher.match(uri)) {
-            case MOVIES_LIST:
-                return MoviesEntry.CONTENT_ITEM_TYPE;
             case MOVIE:
+                return MoviesEntry.CONTENT_ITEM_TYPE;
+            case MOVIES_LIST:
                 return MoviesEntry.CONTENT_TYPE;
+            case TRAILER:
+                return TrailersEntry.CONTENT_ITEM_TYPE;
             case TRAILERS_LIST:
                 return TrailersEntry.CONTENT_TYPE;
             default:
@@ -81,6 +84,7 @@ public class MoviesProvider extends ContentProvider {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
                 break;
+            case TRAILER:
             case TRAILERS_LIST:
                 long trailerId = db.insert(TrailersEntry.TABLE_NAME, null, values);
                 if (trailerId > 0) {
@@ -162,7 +166,7 @@ public class MoviesProvider extends ContentProvider {
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
                 return returnMoviesCount;
-            case TRAILERS_LIST:
+            case TRAILER:
                 db.beginTransaction();
                 int returnTrailersCount = 0;
                 try {
@@ -195,6 +199,7 @@ public class MoviesProvider extends ContentProvider {
 
         matcher.addURI(authority, MoviesContract.PATH_MOVIES, MOVIE);
         matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/*", MOVIES_LIST);
+        matcher.addURI(authority, MoviesContract.PATH_TRAILERS, TRAILER);
         matcher.addURI(authority, MoviesContract.PATH_TRAILERS + "/*", TRAILERS_LIST);
         return matcher;
     }

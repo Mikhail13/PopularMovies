@@ -43,13 +43,14 @@ public class MoviesContract {
         // Table name
         public static final String TABLE_NAME = "trailers";
 
-        public static final String COLUMN_TRAILER_ID = "id";
-        public static final String COLUMN_ISO_639_1 = "original_title";
-        public static final String COLUMN_KEY = "overview";
-        public static final String COLUMN_NAME = "release_date";
-        public static final String COLUMN_SITE = "poster_path";
-        public static final String COLUMN_SIZE = "popularity";
-        public static final String COLUMN_TYPE = "vote_average";
+        public static final String COLUMN_MOVIE_ID = "movie_id";
+        public static final String COLUMN_TRAILER_ID = "trailer_id";
+        public static final String COLUMN_ISO_639_1 = "iso_693_1";
+        public static final String COLUMN_KEY = "key";
+        public static final String COLUMN_NAME = "name";
+        public static final String COLUMN_SITE = "site";
+        public static final String COLUMN_SIZE = "size";
+        public static final String COLUMN_TYPE = "type";
 
         public static Uri buildTrailerUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);

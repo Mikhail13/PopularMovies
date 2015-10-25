@@ -38,6 +38,7 @@ public class ThemoviedbSyncAdapter extends AbstractThreadedSyncAdapter {
     public static final String SORT_BY_RATING = "vote_average.desc";
     public static final int SYNC_INTERVAL = 60 * 180;
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL / 3;
+    public static final String MOVIE_ID = "movieid";
 
     private int mTotalPages = 1;
     private int mLastPage = 0;
@@ -54,23 +55,29 @@ public class ThemoviedbSyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.d(LOG_TAG, "onPerformSync");
-        String prevSortType = mCurrentSortType;
-        mCurrentSortType = extras.getString(SORT_TYPE, mCurrentSortType);
-        if (!prevSortType.equals(mCurrentSortType)) {
-            getContext().getContentResolver().delete(MoviesEntry.CONTENT_URI, null, null);
-            mTotalPages = 1;
-            mLastPage = 0;
-        }
-        if (Utils.isNetworkConnected(getContext())) {
-            if (extras.getBoolean(NEXT_PAGE) && mLastPage < mTotalPages) {
-                if (retrieveThemoviedbData(mCurrentSortType, mLastPage + 1)) {
-                    mLastPage++;
+
+        if (extras.containsKey(MOVIE_ID)) {
+            new TrailersSyncAdapter(getContext(), false).onPerformSync(account, extras, authority, provider, syncResult);
+        } else {
+            String prevSortType = mCurrentSortType;
+            mCurrentSortType = extras.getString(SORT_TYPE, mCurrentSortType);
+            if (!prevSortType.equals(mCurrentSortType)) {
+                getContext().getContentResolver().delete(MoviesEntry.CONTENT_URI, null, null);
+                mTotalPages = 1;
+                mLastPage = 0;
+            }
+            if (Utils.isNetworkConnected(getContext())) {
+                if (extras.getBoolean(NEXT_PAGE) && mLastPage < mTotalPages) {
+                    if (retrieveThemoviedbData(mCurrentSortType, mLastPage + 1)) {
+                        mLastPage++;
+                    }
+                } else {
+                    retrieveThemoviedbData(mCurrentSortType, 1);
+                    mLastPage = 1;
                 }
-            } else {
-                retrieveThemoviedbData(mCurrentSortType, 1);
-                mLastPage = 1;
             }
         }
+
     }
 
     private boolean retrieveThemoviedbData(String sortType, int pageNumber) {
@@ -194,7 +201,7 @@ public class ThemoviedbSyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
-    public static void syncImmediately(Context context, String sortType) {
+    public static void syncMoviesListImmediately(Context context, String sortType) {
         Bundle bundle = new Bundle();
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
@@ -202,6 +209,17 @@ public class ThemoviedbSyncAdapter extends AbstractThreadedSyncAdapter {
             bundle.putString(SORT_TYPE, sortType);
         }
         ContentResolver.requestSync(getSyncAccount(context, sortType),
+                context.getString(R.string.content_authority), bundle);
+    }
+
+    public static void syncTrailersListImmediately(Context context, String movieId) {
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        if (movieId != null) {
+            bundle.putString(MOVIE_ID, movieId);
+        }
+        ContentResolver.requestSync(getSyncAccount(context, movieId),
                 context.getString(R.string.content_authority), bundle);
     }
 
@@ -222,7 +240,7 @@ public class ThemoviedbSyncAdapter extends AbstractThreadedSyncAdapter {
         ThemoviedbSyncAdapter.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
         ContentResolver.setSyncAutomatically(newAccount, context.getString(R.string.content_authority), true);
 
-        syncImmediately(context, sortType);
+        syncMoviesListImmediately(context, sortType);
     }
 
     public static void initializeSyncAdapter(Context context) {

@@ -2,4 +2,8 @@
 <resources>
     <item name="MOVIE_ID" type="id" />
     <item name="LIST_ITEM_ICON" type="id" />
+    <item name="TRAILER_ID" type="id" />
+    <item name="LIST_ITEM_TRAILER" type="id" />
+    <item name="LIST_ITEM_THUMBNAIL" type="id" />
+    <item name="TRAILER_KEY" type="id" />
 </resources>

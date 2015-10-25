@@ -9,7 +9,7 @@ import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.TrailersEntry
 
 public class MoviesDbHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "movies.db";
 
     public MoviesDbHelper(Context context) {
@@ -31,18 +31,19 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
 
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIES_TABLE);
 
-        final String SQL_CREATE_TRAILERSS_TABLE = "CREATE TABLE " + TrailersEntry.TABLE_NAME + " (" +
-                MoviesContract.TrailersEntry._ID + " INTEGER PRIMARY KEY," +
-                MoviesContract.TrailersEntry.COLUMN_TRAILER_ID + " INTEGER UNIQUE NOT NULL, " +
-                MoviesContract.TrailersEntry.COLUMN_ISO_639_1 + " TEXT, " +
-                MoviesContract.TrailersEntry.COLUMN_KEY + " TEXT NOT NULL, " +
-                MoviesContract.TrailersEntry.COLUMN_NAME + " TEXT, " +
-                MoviesContract.TrailersEntry.COLUMN_SITE + " TEXT, " +
-                MoviesContract.TrailersEntry.COLUMN_SIZE + " TEXT, " +
-                MoviesContract.TrailersEntry.COLUMN_TYPE + " TEXT " +
+        final String SQL_CREATE_TRAILERS_TABLE = "CREATE TABLE " + TrailersEntry.TABLE_NAME + " (" +
+                TrailersEntry._ID + " INTEGER PRIMARY KEY," +
+                TrailersEntry.COLUMN_TRAILER_ID + " TEXT UNIQUE NOT NULL, " +
+                TrailersEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
+                TrailersEntry.COLUMN_ISO_639_1 + " TEXT, " +
+                TrailersEntry.COLUMN_KEY + " TEXT NOT NULL, " +
+                TrailersEntry.COLUMN_NAME + " TEXT, " +
+                TrailersEntry.COLUMN_SITE + " TEXT, " +
+                TrailersEntry.COLUMN_SIZE + " TEXT, " +
+                TrailersEntry.COLUMN_TYPE + " TEXT " +
                 " );";
 
-        sqLiteDatabase.execSQL(SQL_CREATE_TRAILERSS_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_TRAILERS_TABLE);
 
     }
 
