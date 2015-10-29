@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:divider="?android:dividerHorizontal"
+    android:orientation="vertical"
+    android:showDividers="middle"
+    android:padding="16dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -13,16 +16,15 @@
             style="?android:attr/textAppearanceLarge"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:textIsSelectable="true"
-            tools:context=".MovieDetailFragment" />
+            android:textIsSelectable="true" />
 
         <LinearLayout
             android:id="@+id/poster_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/original_title"
-            android:layout_marginLeft="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
             android:orientation="horizontal">
 
             <ImageView
@@ -41,16 +43,14 @@
                     style="?android:attr/textAppearanceMedium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textIsSelectable="true"
-                    tools:context=".MovieDetailFragment" />
+                    android:textIsSelectable="true" />
 
                 <TextView
                     android:id="@+id/vote_average"
                     style="?android:attr/textAppearanceMedium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textIsSelectable="true"
-                    tools:context=".MovieDetailFragment" />
+                    android:textIsSelectable="true" />
 
             </LinearLayout>
 
@@ -62,10 +62,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/poster_layout"
-            android:layout_margin="16dp"
-            android:textIsSelectable="true"
-            tools:context=".MovieDetailFragment" />
+            android:layout_marginBottom="16dp"
+            android:textIsSelectable="true" />
 
     </RelativeLayout>
 
-</FrameLayout>
+    <ListView
+        android:id="@+id/listview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/overview"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:divider="@null"
+        android:dividerHeight="5dp"
+        android:gravity="center"
+        android:scrollbars="none"
+        android:transcriptMode="disabled" />
+
+</LinearLayout>

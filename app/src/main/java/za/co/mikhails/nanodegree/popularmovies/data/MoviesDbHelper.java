@@ -39,7 +39,7 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
                 TrailersEntry.COLUMN_KEY + " TEXT NOT NULL, " +
                 TrailersEntry.COLUMN_NAME + " TEXT, " +
                 TrailersEntry.COLUMN_SITE + " TEXT, " +
-                TrailersEntry.COLUMN_SIZE + " TEXT, " +
+                TrailersEntry.COLUMN_SIZE + " INTEGER, " +
                 TrailersEntry.COLUMN_TYPE + " TEXT " +
                 " );";
 

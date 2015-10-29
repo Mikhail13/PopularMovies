@@ -18,14 +18,8 @@ public class MovieDetailActivity extends AppCompatActivity {
             MovieDetailFragment movieDetailFragment = new MovieDetailFragment();
             movieDetailFragment.setArguments(arguments);
 
-            arguments = new Bundle();
-            arguments.putInt(MovieDetailFragment.MOVIE_ID, getIntent().getIntExtra(MovieDetailFragment.MOVIE_ID, -1));
-            TrailerListFragment trailerListFragment = new TrailerListFragment();
-            trailerListFragment.setArguments(arguments);
-
             getFragmentManager().beginTransaction().
                     add(R.id.movie_detail_container, movieDetailFragment).
-                    add(R.id.movie_detail_container, trailerListFragment).
                     commit();
         }
     }

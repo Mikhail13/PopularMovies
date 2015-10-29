@@ -144,7 +144,7 @@ public class TrailersSyncAdapter extends AbstractThreadedSyncAdapter {
             } else if (name.equals("site")) {
                 trailerValues.put(TrailersEntry.COLUMN_SITE, reader.nextString());
             } else if (name.equals("size")) {
-                trailerValues.put(TrailersEntry.COLUMN_SIZE, reader.nextDouble());
+                trailerValues.put(TrailersEntry.COLUMN_SIZE, reader.nextInt());
             } else if (name.equals("type")) {
                 trailerValues.put(TrailersEntry.COLUMN_TYPE, reader.nextString());
             } else {
