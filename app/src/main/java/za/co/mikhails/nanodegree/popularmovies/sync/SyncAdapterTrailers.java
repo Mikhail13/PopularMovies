@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,25 +28,20 @@ import za.co.mikhails.nanodegree.popularmovies.R;
 import za.co.mikhails.nanodegree.popularmovies.Utils;
 import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.TrailersEntry;
 
-public class TrailersSyncAdapter extends AbstractThreadedSyncAdapter {
-    private static final String LOG_TAG = TrailersSyncAdapter.class.getSimpleName();
+public class SyncAdapterTrailers extends AbstractThreadedSyncAdapter {
+    private static final String LOG_TAG = SyncAdapterTrailers.class.getSimpleName();
     public static final String MOVIE_ID = "movieid";
 
-    public TrailersSyncAdapter(Context context, boolean autoInitialize) {
+    public SyncAdapterTrailers(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
-    }
-
-    public TrailersSyncAdapter(Context context, boolean autoInitialize, boolean allowParallelSyncs) {
-        super(context, autoInitialize, allowParallelSyncs);
     }
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.d(LOG_TAG, "onPerformSync");
-        String mmovieId = extras.getString(MOVIE_ID);
-        if (mmovieId != null && !mmovieId.trim().isEmpty()
-                && Utils.isNetworkConnected(getContext())) {
-            retrieveTrailerData(mmovieId);
+        String movieId = extras.getString(MOVIE_ID);
+        if (movieId != null && !movieId.trim().isEmpty() && Utils.isNetworkConnected(getContext())) {
+            retrieveTrailerData(movieId);
         }
     }
 
@@ -57,9 +53,8 @@ public class TrailersSyncAdapter extends AbstractThreadedSyncAdapter {
         HttpURLConnection urlConnection = null;
         JsonReader reader = null;
         try {
-            Uri builtUri = Uri.parse(getContext().getString(R.string.tmdb_trailer_url)).buildUpon()
-                    .appendPath(movieId)
-                    .appendPath("videos")
+            Uri builtUri = Uri.parse(MessageFormat.format(getContext().getString(R.string.tmdb_trailer_url), movieId))
+                    .buildUpon()
                     .appendQueryParameter("api_key", getContext().getString(R.string.tmdb_api_key))
                     .build();
 
@@ -72,9 +67,7 @@ public class TrailersSyncAdapter extends AbstractThreadedSyncAdapter {
             InputStream inputStream = urlConnection.getInputStream();
             reader = new JsonReader(new InputStreamReader(inputStream, "UTF-8"));
 
-            parseResultValues(movieId, reader);
-
-            result = true;
+            result = parseResultValues(movieId, reader);
 
         } catch (Exception e) {
             Log.e(LOG_TAG, "Error ", e);
@@ -93,9 +86,10 @@ public class TrailersSyncAdapter extends AbstractThreadedSyncAdapter {
         return result;
     }
 
-    private void parseResultValues(String movieId, JsonReader reader) throws IOException {
+    private boolean parseResultValues(String movieId, JsonReader reader) throws IOException {
+        int inserted = 0;
         while (reader.hasNext()) {
-            List<ContentValues> trailerList = new ArrayList<ContentValues>();
+            List<ContentValues> trailerList = new ArrayList();
 
             reader.beginObject();
             while (reader.hasNext()) {
@@ -110,9 +104,10 @@ public class TrailersSyncAdapter extends AbstractThreadedSyncAdapter {
                     reader.skipValue();
                 }
             }
-            int inserted = insertDataIntoContentProvider(trailerList);
-            Log.d(LOG_TAG, "Found [" + inserted + "] trailers");
+            inserted += insertDataIntoContentProvider(trailerList);
         }
+        Log.d(LOG_TAG, "Found [" + inserted + "] trailers");
+        return inserted > 0;
     }
 
     private int insertDataIntoContentProvider(List<ContentValues> moviesList) {
@@ -184,7 +179,4 @@ public class TrailersSyncAdapter extends AbstractThreadedSyncAdapter {
         syncImmediately(context, movieId);
     }
 
-    public static void initializeSyncAdapter(Context context) {
-        getSyncAccount(context, null);
-    }
 }

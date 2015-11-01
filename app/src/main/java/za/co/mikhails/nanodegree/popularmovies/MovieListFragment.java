@@ -17,7 +17,7 @@ import android.widget.GridView;
 import android.widget.ListView;
 
 import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.MoviesEntry;
-import za.co.mikhails.nanodegree.popularmovies.sync.ThemoviedbSyncAdapter;
+import za.co.mikhails.nanodegree.popularmovies.sync.SyncAdapterMovies;
 
 public class MovieListFragment extends Fragment implements android.app.LoaderManager.LoaderCallbacks<Cursor>,
         AdapterView.OnItemClickListener, AbsListView.OnScrollListener {
@@ -114,9 +114,9 @@ public class MovieListFragment extends Fragment implements android.app.LoaderMan
         bundle.putString(MovieListActivity.SORT_ORDER, sortOrder);
         getLoaderManager().restartLoader(MOVIE_LOADER, bundle, this);
 
-        ThemoviedbSyncAdapter.syncMoviesListImmediately(getActivity(), sortOrder.equals(MovieListActivity.SORT_ORDER_POPULARITY) ?
-                ThemoviedbSyncAdapter.SORT_BY_POPULAR :
-                ThemoviedbSyncAdapter.SORT_BY_RATING);
+        SyncAdapterMovies.syncMoviesListImmediately(getActivity(), sortOrder.equals(MovieListActivity.SORT_ORDER_POPULARITY) ?
+                SyncAdapterMovies.SORT_BY_POPULAR :
+                SyncAdapterMovies.SORT_BY_RATING);
 
         mMovieListAdapter.notifyDataSetChanged();
     }
@@ -138,7 +138,7 @@ public class MovieListFragment extends Fragment implements android.app.LoaderMan
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        Uri provider = MoviesEntry.CONTENT_URI.buildUpon().appendPath("*").build();
+        Uri provider = MoviesEntry.CONTENT_URI.buildUpon().build();
         return new CursorLoader(getActivity(), provider, COLUMNS, null, null, bundle.getString(MovieListActivity.SORT_ORDER, MovieListActivity.SORT_ORDER_DEFAULT));
     }
 
@@ -165,7 +165,7 @@ public class MovieListFragment extends Fragment implements android.app.LoaderMan
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         if (totalItemCount - visibleItemCount < firstVisibleItem + visibleItemCount * 2) {
-            ThemoviedbSyncAdapter.loadNextPageOnScroll(MovieListFragment.this.getActivity());
+            SyncAdapterMovies.loadNextPageOnScroll(MovieListFragment.this.getActivity());
         }
     }
 }

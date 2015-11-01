@@ -8,7 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract;
-import za.co.mikhails.nanodegree.popularmovies.sync.ThemoviedbSyncAdapter;
+import za.co.mikhails.nanodegree.popularmovies.sync.SyncAdapterMovies;
 
 public class MovieListActivity extends AppCompatActivity implements MovieListFragment.Callbacks {
     public static final String PREFS_NAME = "MoviesPrefsFile";
@@ -34,7 +34,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
             movieListFragment.setActivateOnItemClick(true);
         }
 
-        ThemoviedbSyncAdapter.initializeSyncAdapter(this);
+        SyncAdapterMovies.initializeSyncAdapter(this);
 
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         mSortOrder = settings.getString(SORT_ORDER, SORT_ORDER_DEFAULT);

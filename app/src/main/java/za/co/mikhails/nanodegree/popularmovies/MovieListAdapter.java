@@ -22,7 +22,7 @@ public class MovieListAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        View view = LayoutInflater.from(context).inflate(R.layout.list_item_movie_poster, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.grid_item_movie_poster, parent, false);
         view.setTag(R.id.LIST_ITEM_ICON, view.findViewById(R.id.list_item_icon));
         return view;
     }

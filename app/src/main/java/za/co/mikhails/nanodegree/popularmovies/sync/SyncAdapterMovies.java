@@ -29,8 +29,8 @@ import za.co.mikhails.nanodegree.popularmovies.R;
 import za.co.mikhails.nanodegree.popularmovies.Utils;
 import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.MoviesEntry;
 
-public class ThemoviedbSyncAdapter extends AbstractThreadedSyncAdapter {
-    private static final String LOG_TAG = ThemoviedbSyncAdapter.class.getSimpleName();
+public class SyncAdapterMovies extends AbstractThreadedSyncAdapter {
+    private static final String LOG_TAG = SyncAdapterMovies.class.getSimpleName();
 
     public static final String NEXT_PAGE = "nextpage";
     public static final String SORT_TYPE = "sorttype";
@@ -44,11 +44,11 @@ public class ThemoviedbSyncAdapter extends AbstractThreadedSyncAdapter {
     private int mLastPage = 0;
     private String mCurrentSortType = SORT_BY_POPULAR;
 
-    public ThemoviedbSyncAdapter(Context context, boolean autoInitialize) {
+    public SyncAdapterMovies(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
     }
 
-    public ThemoviedbSyncAdapter(Context context, boolean autoInitialize, boolean allowParallelSyncs) {
+    public SyncAdapterMovies(Context context, boolean autoInitialize, boolean allowParallelSyncs) {
         super(context, autoInitialize, allowParallelSyncs);
     }
 
@@ -57,7 +57,9 @@ public class ThemoviedbSyncAdapter extends AbstractThreadedSyncAdapter {
         Log.d(LOG_TAG, "onPerformSync");
 
         if (extras.containsKey(MOVIE_ID)) {
-            new TrailersSyncAdapter(getContext(), false).onPerformSync(account, extras, authority, provider, syncResult);
+            // TODO: Investigate/implement how to use multiple adapters
+            new SyncAdapterTrailers(getContext(), false).onPerformSync(account, extras, authority, provider, syncResult);
+            new SyncAdapterReviews(getContext(), false).onPerformSync(account, extras, authority, provider, syncResult);
         } else {
             String prevSortType = mCurrentSortType;
             mCurrentSortType = extras.getString(SORT_TYPE, mCurrentSortType);
@@ -126,7 +128,7 @@ public class ThemoviedbSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void parseResultValues(JsonReader reader) throws IOException {
         while (reader.hasNext()) {
-            List<ContentValues> moviesList = new ArrayList<ContentValues>();
+            List<ContentValues> moviesList = new ArrayList();
 
             reader.beginObject();
             while (reader.hasNext()) {
@@ -212,7 +214,7 @@ public class ThemoviedbSyncAdapter extends AbstractThreadedSyncAdapter {
                 context.getString(R.string.content_authority), bundle);
     }
 
-    public static void syncTrailersListImmediately(Context context, String movieId) {
+    public static void syncMovieDetailsImmediately(Context context, String movieId) {
         Bundle bundle = new Bundle();
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
@@ -237,7 +239,7 @@ public class ThemoviedbSyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private static void onAccountCreated(Account newAccount, Context context, String sortType) {
-        ThemoviedbSyncAdapter.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
+        SyncAdapterMovies.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
         ContentResolver.setSyncAutomatically(newAccount, context.getString(R.string.content_authority), true);
 
         syncMoviesListImmediately(context, sortType);
@@ -251,7 +253,7 @@ public class ThemoviedbSyncAdapter extends AbstractThreadedSyncAdapter {
         Bundle bundle = new Bundle();
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        bundle.putBoolean(ThemoviedbSyncAdapter.NEXT_PAGE, true);
+        bundle.putBoolean(SyncAdapterMovies.NEXT_PAGE, true);
         ContentResolver.requestSync(getSyncAccount(context, null), context.getString(R.string.content_authority), bundle);
     }
 }

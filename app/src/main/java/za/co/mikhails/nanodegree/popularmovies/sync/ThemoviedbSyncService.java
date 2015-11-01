@@ -6,19 +6,19 @@ import android.os.IBinder;
 
 public class ThemoviedbSyncService extends Service {
     private static final Object sSyncAdapterLock = new Object();
-    private static ThemoviedbSyncAdapter sThemoviedbSyncAdapter = null;
+    private static SyncAdapterMovies sSyncAdapterMovies = null;
 
     @Override
     public void onCreate() {
         synchronized (sSyncAdapterLock) {
-            if (sThemoviedbSyncAdapter == null) {
-                sThemoviedbSyncAdapter = new ThemoviedbSyncAdapter(getApplicationContext(), true);
+            if (sSyncAdapterMovies == null) {
+                sSyncAdapterMovies = new SyncAdapterMovies(getApplicationContext(), true);
             }
         }
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return sThemoviedbSyncAdapter.getSyncAdapterBinder();
+        return sSyncAdapterMovies.getSyncAdapterBinder();
     }
 }

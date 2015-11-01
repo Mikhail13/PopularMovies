@@ -1,24 +1,30 @@
 package za.co.mikhails.nanodegree.popularmovies.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.MergeCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 
 import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.MoviesEntry;
+import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.ReviewsEntry;
 import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.TrailersEntry;
 
 public class MoviesProvider extends ContentProvider {
     private MoviesDbHelper mOpenHelper;
     private static final UriMatcher sUriMatcher = buildUriMatcher();
 
-    static final int MOVIE = 100;
-    static final int MOVIES_LIST = 101;
-    static final int TRAILER = 102;
-    static final int TRAILERS_LIST = 103;
+    static final int MOVIES = 100;
+    static final int MOVIE_ITEM = 101;
+    static final int MOVIE_DETAILS = 103;
+    static final int TRAILERS = 200;
+    static final int TRAILER_ITEM = 201;
+    static final int REVIEWS = 300;
+    static final int REVIEW_ITEM = 301;
 
     @Override
     public boolean onCreate() {
@@ -31,17 +37,39 @@ public class MoviesProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
-            case MOVIES_LIST:
+            case MOVIES:
                 retCursor = mOpenHelper.getReadableDatabase().query(MoviesEntry.TABLE_NAME,
                         projection, selection, selectionArgs, null, null, sortOrder);
                 break;
-            case MOVIE:
-                retCursor = mOpenHelper.getReadableDatabase().query(MoviesEntry.TABLE_NAME,
-                        projection, selection, selectionArgs, null, null, sortOrder);
-                break;
-            case TRAILERS_LIST:
+            case TRAILERS:
                 retCursor = mOpenHelper.getReadableDatabase().query(TrailersEntry.TABLE_NAME,
                         projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+            case REVIEWS:
+                retCursor = mOpenHelper.getReadableDatabase().query(ReviewsEntry.TABLE_NAME,
+                        projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+            case MOVIE_DETAILS:
+                long movieId = ContentUris.parseId(uri);
+                String where = "(" + MoviesEntry.COLUMN_MOVIE_ID + " = '" + movieId + "')";
+                String[] columns = new String[]{"*", "'" + MoviesEntry.TABLE_NAME + "' as " + MoviesContract.MOVIE_DETAIL_TABLE};
+                Cursor[] cursors = new Cursor[3];
+
+                cursors[0] = mOpenHelper.getReadableDatabase().query(MoviesEntry.TABLE_NAME,
+                        columns, where, selectionArgs, null, null, sortOrder);
+                cursors[0].setNotificationUri(getContext().getContentResolver(), MoviesEntry.CONTENT_URI);
+
+                columns[1] = "'" + TrailersEntry.TABLE_NAME + "' as " + MoviesContract.MOVIE_DETAIL_TABLE;
+                cursors[1] = mOpenHelper.getReadableDatabase().query(TrailersEntry.TABLE_NAME,
+                        columns, where, selectionArgs, null, null, sortOrder);
+                cursors[1].setNotificationUri(getContext().getContentResolver(), TrailersEntry.CONTENT_URI);
+
+                columns[1] = "'" + ReviewsEntry.TABLE_NAME + "' as " + MoviesContract.MOVIE_DETAIL_TABLE;
+                cursors[2] = mOpenHelper.getReadableDatabase().query(ReviewsEntry.TABLE_NAME,
+                        columns, where, selectionArgs, null, null, sortOrder);
+                cursors[2].setNotificationUri(getContext().getContentResolver(), ReviewsEntry.CONTENT_URI);
+
+                retCursor = new MergeCursor(cursors);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -52,31 +80,13 @@ public class MoviesProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public String getType(Uri uri) {
-        switch (sUriMatcher.match(uri)) {
-            case MOVIE:
-                return MoviesEntry.CONTENT_ITEM_TYPE;
-            case MOVIES_LIST:
-                return MoviesEntry.CONTENT_TYPE;
-            case TRAILER:
-                return TrailersEntry.CONTENT_ITEM_TYPE;
-            case TRAILERS_LIST:
-                return TrailersEntry.CONTENT_TYPE;
-            default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
-        }
-    }
-
-    @Nullable
-    @Override
     public Uri insert(Uri uri, ContentValues values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         Uri returnUri;
 
         switch (match) {
-            case MOVIE:
-            case MOVIES_LIST:
+            case MOVIES:
                 long movieId = db.insert(MoviesEntry.TABLE_NAME, null, values);
                 if (movieId > 0) {
                     returnUri = MoviesEntry.buildMovieUri(movieId);
@@ -84,11 +94,18 @@ public class MoviesProvider extends ContentProvider {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
                 break;
-            case TRAILER:
-            case TRAILERS_LIST:
+            case TRAILERS:
                 long trailerId = db.insert(TrailersEntry.TABLE_NAME, null, values);
                 if (trailerId > 0) {
                     returnUri = TrailersEntry.buildTrailerUri(trailerId);
+                } else {
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
+                break;
+            case REVIEWS:
+                long reviewId = db.insert(ReviewsEntry.TABLE_NAME, null, values);
+                if (reviewId > 0) {
+                    returnUri = ReviewsEntry.buildReviewsUri(reviewId);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
@@ -107,12 +124,14 @@ public class MoviesProvider extends ContentProvider {
         int rowsDeleted;
         if (null == selection) selection = "1";
         switch (match) {
-            case MOVIE:
-            case MOVIES_LIST:
+            case MOVIES:
                 rowsDeleted = db.delete(MoviesEntry.TABLE_NAME, selection, selectionArgs);
                 break;
-            case TRAILERS_LIST:
+            case TRAILERS:
                 rowsDeleted = db.delete(TrailersEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case REVIEWS:
+                rowsDeleted = db.delete(ReviewsEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -130,11 +149,14 @@ public class MoviesProvider extends ContentProvider {
         int rowsUpdated;
 
         switch (match) {
-            case MOVIE:
+            case MOVIES:
                 rowsUpdated = db.update(MoviesEntry.TABLE_NAME, values, selection, selectionArgs);
                 break;
-            case TRAILERS_LIST:
+            case TRAILERS:
                 rowsUpdated = db.update(TrailersEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            case REVIEWS:
+                rowsUpdated = db.update(ReviewsEntry.TABLE_NAME, values, selection, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -147,10 +169,11 @@ public class MoviesProvider extends ContentProvider {
 
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
+        int result = 0;
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         switch (match) {
-            case MOVIE:
+            case MOVIES:
                 db.beginTransaction();
                 int returnMoviesCount = 0;
                 try {
@@ -164,9 +187,9 @@ public class MoviesProvider extends ContentProvider {
                 } finally {
                     db.endTransaction();
                 }
-                getContext().getContentResolver().notifyChange(uri, null);
-                return returnMoviesCount;
-            case TRAILER:
+                result = returnMoviesCount;
+                break;
+            case TRAILERS:
                 db.beginTransaction();
                 int returnTrailersCount = 0;
                 try {
@@ -180,11 +203,29 @@ public class MoviesProvider extends ContentProvider {
                 } finally {
                     db.endTransaction();
                 }
-                getContext().getContentResolver().notifyChange(uri, null);
-                return returnTrailersCount;
+                result = returnTrailersCount;
+                break;
+            case REVIEWS:
+                db.beginTransaction();
+                int returnReviewsCount = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insertWithOnConflict(ReviewsEntry.TABLE_NAME, null, value, SQLiteDatabase.CONFLICT_IGNORE);
+                        if (_id != -1) {
+                            returnReviewsCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                result = returnReviewsCount;
+                break;
             default:
-                return super.bulkInsert(uri, values);
+                result = super.bulkInsert(uri, values);
         }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return result;
     }
 
     @Override
@@ -193,14 +234,43 @@ public class MoviesProvider extends ContentProvider {
         super.shutdown();
     }
 
+    @Nullable
+    @Override
+    public String getType(Uri uri) {
+        switch (sUriMatcher.match(uri)) {
+            case MOVIE_ITEM:
+                return MoviesEntry.CONTENT_ITEM_TYPE;
+            case MOVIES:
+                return MoviesEntry.CONTENT_TYPE;
+            case TRAILER_ITEM:
+                return TrailersEntry.CONTENT_ITEM_TYPE;
+            case TRAILERS:
+                return TrailersEntry.CONTENT_TYPE;
+            case REVIEW_ITEM:
+                return ReviewsEntry.CONTENT_ITEM_TYPE;
+            case REVIEWS:
+                return ReviewsEntry.CONTENT_TYPE;
+            case MOVIE_DETAILS:
+                return MoviesEntry.CONTENT_DETAILS_TYPE;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+    }
+
     static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = MoviesContract.CONTENT_AUTHORITY;
 
-        matcher.addURI(authority, MoviesContract.PATH_MOVIES, MOVIE);
-        matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/*", MOVIES_LIST);
-        matcher.addURI(authority, MoviesContract.PATH_TRAILERS, TRAILER);
-        matcher.addURI(authority, MoviesContract.PATH_TRAILERS + "/*", TRAILERS_LIST);
+        matcher.addURI(authority, MoviesContract.PATH_MOVIES, MOVIES);
+        matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/#", MOVIE_ITEM);
+        matcher.addURI(authority, MoviesContract.PATH_MOVIES + "/" + MoviesContract.PATH_MOVIE_DETAILS + "/#", MOVIE_DETAILS);
+
+        matcher.addURI(authority, MoviesContract.PATH_TRAILERS, TRAILERS);
+        matcher.addURI(authority, MoviesContract.PATH_TRAILERS + "/#", TRAILER_ITEM);
+
+        matcher.addURI(authority, MoviesContract.PATH_REVIEWS, REVIEWS);
+        matcher.addURI(authority, MoviesContract.PATH_REVIEWS + "/#", REVIEW_ITEM);
+
         return matcher;
     }
 }

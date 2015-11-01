@@ -5,11 +5,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.MoviesEntry;
+import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.ReviewsEntry;
 import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.TrailersEntry;
 
 public class MoviesDbHelper extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     private static final String DATABASE_NAME = "movies.db";
 
     public MoviesDbHelper(Context context) {
@@ -45,12 +46,24 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
 
         sqLiteDatabase.execSQL(SQL_CREATE_TRAILERS_TABLE);
 
+        final String SQL_CREATE_REVIEWS_TABLE = "CREATE TABLE " + ReviewsEntry.TABLE_NAME + " (" +
+                ReviewsEntry._ID + " INTEGER PRIMARY KEY," +
+                ReviewsEntry.COLUMN_REVIEW_ID + " TEXT UNIQUE NOT NULL, " +
+                ReviewsEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
+                ReviewsEntry.COLUMN_AUTHOR + " TEXT, " +
+                ReviewsEntry.COLUMN_CONTENT + " TEXT, " +
+                ReviewsEntry.COLUMN_URL + " TEXT " +
+                " );";
+
+        sqLiteDatabase.execSQL(SQL_CREATE_REVIEWS_TABLE);
+
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MoviesEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TrailersEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ReviewsEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 }
