@@ -39,6 +39,8 @@ public class SyncAdapterMovies extends AbstractThreadedSyncAdapter {
     public static final int SYNC_INTERVAL = 60 * 180;
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL / 3;
     public static final String MOVIE_ID = "movieid";
+    private final SyncAdapterTrailersDelegate syncAdapterTrailersDelegate;
+    private final SyncAdapterReviewsDelegate syncAdapterReviewsDelegate;
 
     private int mTotalPages = 1;
     private int mLastPage = 0;
@@ -46,10 +48,14 @@ public class SyncAdapterMovies extends AbstractThreadedSyncAdapter {
 
     public SyncAdapterMovies(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
+        syncAdapterTrailersDelegate = new SyncAdapterTrailersDelegate(context);
+        syncAdapterReviewsDelegate = new SyncAdapterReviewsDelegate(context);
     }
 
     public SyncAdapterMovies(Context context, boolean autoInitialize, boolean allowParallelSyncs) {
         super(context, autoInitialize, allowParallelSyncs);
+        syncAdapterTrailersDelegate = new SyncAdapterTrailersDelegate(context);
+        syncAdapterReviewsDelegate = new SyncAdapterReviewsDelegate(context);
     }
 
     @Override
@@ -57,9 +63,8 @@ public class SyncAdapterMovies extends AbstractThreadedSyncAdapter {
         Log.d(LOG_TAG, "onPerformSync");
 
         if (extras.containsKey(MOVIE_ID)) {
-            // TODO: Investigate/implement how to use multiple adapters
-            new SyncAdapterTrailers(getContext(), false).onPerformSync(account, extras, authority, provider, syncResult);
-            new SyncAdapterReviews(getContext(), false).onPerformSync(account, extras, authority, provider, syncResult);
+            syncAdapterTrailersDelegate.onPerformSync(account, extras, authority, provider, syncResult);
+            syncAdapterReviewsDelegate.onPerformSync(account, extras, authority, provider, syncResult);
         } else {
             String prevSortType = mCurrentSortType;
             mCurrentSortType = extras.getString(SORT_TYPE, mCurrentSortType);
@@ -79,7 +84,6 @@ public class SyncAdapterMovies extends AbstractThreadedSyncAdapter {
                 }
             }
         }
-
     }
 
     private boolean retrieveThemoviedbData(String sortType, int pageNumber) {

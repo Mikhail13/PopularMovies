@@ -7,21 +7,22 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract;
 import za.co.mikhails.nanodegree.popularmovies.sync.SyncAdapterMovies;
 
 public class MovieListActivity extends AppCompatActivity implements MovieListFragment.Callbacks {
     public static final String PREFS_NAME = "MoviesPrefsFile";
 
-    public static final String SORT_ORDER_POPULARITY = MoviesContract.MoviesEntry.COLUMN_POPULARITY + " DESC," + MoviesContract.MoviesEntry._ID + " ASC";
-    public static final String SORT_ORDER_RATING = MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE + " DESC," + MoviesContract.MoviesEntry._ID + " ASC";
-    public static final String SORT_ORDER_DEFAULT = SORT_ORDER_POPULARITY;
+    public static final int SORT_ORDER_POPULARITY = 0;
+    public static final int SORT_ORDER_RATING = 1;
+    public static final int SORT_ORDER_FAVORITES = 2;
+    public static final int SORT_ORDER_DEFAULT = SORT_ORDER_POPULARITY;
     public static final String SORT_ORDER = "sortorder";
 
     private boolean mTwoPane;
     private MenuItem mItemPopular;
     private MenuItem mItemRating;
-    private String mSortOrder;
+    private MenuItem mItemFavorites;
+    private int mSortOrder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,28 +38,25 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
         SyncAdapterMovies.initializeSyncAdapter(this);
 
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        mSortOrder = settings.getString(SORT_ORDER, SORT_ORDER_DEFAULT);
-        switch (mSortOrder) {
-            case SORT_ORDER_POPULARITY:
-                movieListFragment.setSortOrder(SORT_ORDER_POPULARITY);
-                break;
-            case SORT_ORDER_RATING:
-                movieListFragment.setSortOrder(SORT_ORDER_RATING);
-                break;
-        }
+        mSortOrder = settings.getInt(SORT_ORDER, SORT_ORDER_DEFAULT);
+        movieListFragment.setSortOrder(mSortOrder);
     }
+
 
     @Override
     public void onItemSelected(int id) {
+        Bundle bundle = new Bundle();
+        bundle.putInt(MovieDetailFragment.MOVIE_ID, id);
+        if (mSortOrder == SORT_ORDER_FAVORITES) {
+            bundle.putInt(MovieDetailFragment.FAVORITES, mSortOrder);
+        }
         if (mTwoPane) {
-            Bundle arguments = new Bundle();
-            arguments.putInt(MovieDetailFragment.MOVIE_ID, id);
             MovieDetailFragment fragment = new MovieDetailFragment();
-            fragment.setArguments(arguments);
+            fragment.setArguments(bundle);
             getFragmentManager().beginTransaction().replace(R.id.movie_detail_container, fragment).commit();
         } else {
             Intent detailIntent = new Intent(this, MovieDetailActivity.class);
-            detailIntent.putExtra(MovieDetailFragment.MOVIE_ID, id);
+            detailIntent.putExtras(bundle);
             startActivity(detailIntent);
         }
     }
@@ -75,6 +73,10 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
                 mItemRating = menu.findItem(R.id.action_sort_by_rating);
                 mItemRating.setChecked(true);
                 break;
+            case SORT_ORDER_FAVORITES:
+                mItemFavorites = menu.findItem(R.id.action_show_favorites);
+                mItemFavorites.setChecked(true);
+                break;
         }
         return true;
     }
@@ -90,6 +92,10 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
                 item.setChecked(true);
                 updateSortOrder(SORT_ORDER_RATING);
                 return true;
+            case R.id.action_show_favorites:
+                item.setChecked(true);
+                updateSortOrder(SORT_ORDER_FAVORITES);
+                return true;
             case R.id.action_about:
                 startActivity(new Intent(this, AboutActivity.class));
                 return true;
@@ -98,7 +104,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
         }
     }
 
-    private void updateSortOrder(String sortOrder) {
+    private void updateSortOrder(int sortOrder) {
         mSortOrder = sortOrder;
         ((MovieListFragment) getFragmentManager().findFragmentById(R.id.movie_list)).setSortOrder(sortOrder);
     }
@@ -107,6 +113,6 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
     public void onDestroy() {
         super.onDestroy();
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        settings.edit().putString(SORT_ORDER, mSortOrder).commit();
+        settings.edit().putInt(SORT_ORDER, mSortOrder).commit();
     }
 }

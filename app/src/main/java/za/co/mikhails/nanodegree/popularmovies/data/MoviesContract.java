@@ -9,6 +9,10 @@ public class MoviesContract {
 
     public static final String CONTENT_AUTHORITY = "za.co.mikhails.nanodegree.popularmovies.app";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+
+    public static final String FAVORITES_CONTENT_AUTHORITY = "za.co.mikhails.nanodegree.popularmovies.app.favorites";
+    public static final Uri FAVORITES_BASE_CONTENT_URI = Uri.parse("content://" + FAVORITES_CONTENT_AUTHORITY);
+
     public static final String PATH_MOVIES = "movies";
     public static final String PATH_MOVIE_DETAILS = "details";
     public static final String PATH_TRAILERS = "trailers";
@@ -21,6 +25,7 @@ public class MoviesContract {
         public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES;
         public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES;
         public static final String CONTENT_DETAILS_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIE_DETAILS;
+        public static final Uri FAVORITES_CONTENT_URI = FAVORITES_BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIES).build();
 
         // Table name
         public static final String TABLE_NAME = "movies";
@@ -43,6 +48,7 @@ public class MoviesContract {
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAILERS).build();
         public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TRAILERS;
         public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TRAILERS;
+        public static final Uri FAVORITES_CONTENT_URI = FAVORITES_BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAILERS).build();
 
         // Table name
         public static final String TABLE_NAME = "trailers";
@@ -66,6 +72,7 @@ public class MoviesContract {
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_REVIEWS).build();
         public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEWS;
         public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEWS;
+        public static final Uri FAVORITES_CONTENT_URI = FAVORITES_BASE_CONTENT_URI.buildUpon().appendPath(PATH_REVIEWS).build();
 
         // Table name
         public static final String TABLE_NAME = "reviews";

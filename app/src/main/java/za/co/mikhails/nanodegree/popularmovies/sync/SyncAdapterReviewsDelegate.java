@@ -1,10 +1,7 @@
 package za.co.mikhails.nanodegree.popularmovies.sync;
 
 import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SyncResult;
@@ -28,20 +25,18 @@ import za.co.mikhails.nanodegree.popularmovies.R;
 import za.co.mikhails.nanodegree.popularmovies.Utils;
 import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.ReviewsEntry;
 
-public class SyncAdapterReviews extends AbstractThreadedSyncAdapter {
-    private static final String LOG_TAG = SyncAdapterReviews.class.getSimpleName();
-    public static final String MOVIE_ID = "movieid";
+public class SyncAdapterReviewsDelegate {
+    private static final String LOG_TAG = SyncAdapterReviewsDelegate.class.getSimpleName();
+    private Context mContext;
 
-    public SyncAdapterReviews(Context context, boolean autoInitialize) {
-        super(context, autoInitialize);
+    public SyncAdapterReviewsDelegate(Context context) {
+        this.mContext = context;
     }
 
-    @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.d(LOG_TAG, "onPerformSync");
-        String movieId = extras.getString(MOVIE_ID);
-        if (movieId != null && !movieId.trim().isEmpty()
-                && Utils.isNetworkConnected(getContext())) {
+        String movieId = extras.getString(SyncAdapterMovies.MOVIE_ID);
+        if (movieId != null && !movieId.trim().isEmpty() && Utils.isNetworkConnected(mContext)) {
             retrieveReviewData(movieId);
         }
     }
@@ -54,9 +49,9 @@ public class SyncAdapterReviews extends AbstractThreadedSyncAdapter {
         HttpURLConnection urlConnection = null;
         JsonReader reader = null;
         try {
-            Uri builtUri = Uri.parse(MessageFormat.format(getContext().getString(R.string.tmdb_review_url), movieId))
+            Uri builtUri = Uri.parse(MessageFormat.format(mContext.getString(R.string.tmdb_review_url), movieId))
                     .buildUpon()
-                    .appendQueryParameter("api_key", getContext().getString(R.string.tmdb_api_key))
+                    .appendQueryParameter("api_key", mContext.getString(R.string.tmdb_api_key))
                     .build();
 
             URL url = new URL(builtUri.toString());
@@ -114,7 +109,7 @@ public class SyncAdapterReviews extends AbstractThreadedSyncAdapter {
     private int insertDataIntoContentProvider(List<ContentValues> moviesList) {
         int result = 0;
         if (moviesList.size() > 0) {
-            result = getContext().getContentResolver().bulkInsert(
+            result = mContext.getContentResolver().bulkInsert(
                     ReviewsEntry.CONTENT_URI,
                     moviesList.toArray(new ContentValues[moviesList.size()]));
         }
@@ -143,35 +138,6 @@ public class SyncAdapterReviews extends AbstractThreadedSyncAdapter {
         }
         reader.endObject();
         return reviewValues;
-    }
-
-    public static void syncImmediately(Context context, String movieId) {
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        if (movieId != null) {
-            bundle.putString(MOVIE_ID, movieId);
-        }
-        ContentResolver.requestSync(getSyncAccount(context, movieId),
-                context.getString(R.string.content_authority_reviews), bundle);
-    }
-
-    public static Account getSyncAccount(Context context, String movieId) {
-        AccountManager accountManager = (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
-        Account newAccount = new Account(context.getString(R.string.app_name), context.getString(R.string.sync_account_type));
-
-        if (null == accountManager.getPassword(newAccount)) {
-            if (!accountManager.addAccountExplicitly(newAccount, "", null)) {
-                return null;
-            }
-            onAccountCreated(newAccount, context, movieId);
-        }
-        return newAccount;
-    }
-
-    private static void onAccountCreated(Account newAccount, Context context, String movieId) {
-        ContentResolver.setSyncAutomatically(newAccount, context.getString(R.string.content_authority_reviews), true);
-        syncImmediately(context, movieId);
     }
 
 }

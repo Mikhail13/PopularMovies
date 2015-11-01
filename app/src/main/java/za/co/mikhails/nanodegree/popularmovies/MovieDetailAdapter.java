@@ -16,8 +16,8 @@ import java.text.MessageFormat;
 
 import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract;
 import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.MoviesEntry;
-import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.TrailersEntry;
 import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.ReviewsEntry;
+import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.TrailersEntry;
 
 public class MovieDetailAdapter extends CursorAdapter {
 

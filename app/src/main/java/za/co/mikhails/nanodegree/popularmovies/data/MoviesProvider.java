@@ -15,20 +15,21 @@ import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.ReviewsEntry;
 import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.TrailersEntry;
 
 public class MoviesProvider extends ContentProvider {
-    private MoviesDbHelper mOpenHelper;
-    private static final UriMatcher sUriMatcher = buildUriMatcher();
+    protected static final int MOVIES = 100;
+    protected static final int MOVIE_ITEM = 101;
+    protected static final int MOVIE_DETAILS = 103;
+    protected static final int TRAILERS = 200;
+    protected static final int TRAILER_ITEM = 201;
+    protected static final int REVIEWS = 300;
+    protected static final int REVIEW_ITEM = 301;
 
-    static final int MOVIES = 100;
-    static final int MOVIE_ITEM = 101;
-    static final int MOVIE_DETAILS = 103;
-    static final int TRAILERS = 200;
-    static final int TRAILER_ITEM = 201;
-    static final int REVIEWS = 300;
-    static final int REVIEW_ITEM = 301;
+    protected MoviesDbHelper mOpenHelper;
+    protected UriMatcher mUriMatcher;
 
     @Override
     public boolean onCreate() {
         mOpenHelper = new MoviesDbHelper(getContext());
+        mUriMatcher = buildUriMatcher();
         return true;
     }
 
@@ -36,7 +37,7 @@ public class MoviesProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         Cursor retCursor;
-        switch (sUriMatcher.match(uri)) {
+        switch (mUriMatcher.match(uri)) {
             case MOVIES:
                 retCursor = mOpenHelper.getReadableDatabase().query(MoviesEntry.TABLE_NAME,
                         projection, selection, selectionArgs, null, null, sortOrder);
@@ -82,7 +83,7 @@ public class MoviesProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        final int match = sUriMatcher.match(uri);
+        final int match = mUriMatcher.match(uri);
         Uri returnUri;
 
         switch (match) {
@@ -120,7 +121,7 @@ public class MoviesProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        final int match = sUriMatcher.match(uri);
+        final int match = mUriMatcher.match(uri);
         int rowsDeleted;
         if (null == selection) selection = "1";
         switch (match) {
@@ -145,7 +146,7 @@ public class MoviesProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        final int match = sUriMatcher.match(uri);
+        final int match = mUriMatcher.match(uri);
         int rowsUpdated;
 
         switch (match) {
@@ -171,7 +172,7 @@ public class MoviesProvider extends ContentProvider {
     public int bulkInsert(Uri uri, ContentValues[] values) {
         int result = 0;
         final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        final int match = sUriMatcher.match(uri);
+        final int match = mUriMatcher.match(uri);
         switch (match) {
             case MOVIES:
                 db.beginTransaction();
@@ -237,7 +238,7 @@ public class MoviesProvider extends ContentProvider {
     @Nullable
     @Override
     public String getType(Uri uri) {
-        switch (sUriMatcher.match(uri)) {
+        switch (mUriMatcher.match(uri)) {
             case MOVIE_ITEM:
                 return MoviesEntry.CONTENT_ITEM_TYPE;
             case MOVIES:
@@ -257,7 +258,7 @@ public class MoviesProvider extends ContentProvider {
         }
     }
 
-    static UriMatcher buildUriMatcher() {
+    protected UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = MoviesContract.CONTENT_AUTHORITY;
 

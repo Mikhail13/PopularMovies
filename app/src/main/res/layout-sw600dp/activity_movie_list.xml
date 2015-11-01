@@ -19,16 +19,10 @@
         android:layout_weight="1"
         tools:layout="@android:layout/list_content" />
 
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    <FrameLayout
+        android:id="@+id/movie_detail_container"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="2">
-
-        <FrameLayout
-            android:id="@+id/movie_detail_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-    </ScrollView>
+        android:layout_weight="2" />
 
 </LinearLayout>

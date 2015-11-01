@@ -48,6 +48,12 @@
             android:exported="false"
             android:syncable="true" />
 
+        <provider
+            android:name=".data.OfflineFavoritesProvider"
+            android:authorities="@string/content_authority_favorites"
+            android:exported="false"
+            android:syncable="true" />
+
         <service android:name=".sync.ThemoviedbAuthenticatorService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />

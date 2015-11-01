@@ -5,7 +5,6 @@ import android.app.Fragment;
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
@@ -16,11 +15,15 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ListView;
 
+import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract;
 import za.co.mikhails.nanodegree.popularmovies.data.MoviesContract.MoviesEntry;
 import za.co.mikhails.nanodegree.popularmovies.sync.SyncAdapterMovies;
 
 public class MovieListFragment extends Fragment implements android.app.LoaderManager.LoaderCallbacks<Cursor>,
         AdapterView.OnItemClickListener, AbsListView.OnScrollListener {
+
+    public static final String SORT_CLAUSE_POPULARITY = MoviesContract.MoviesEntry.COLUMN_POPULARITY + " DESC," + MoviesContract.MoviesEntry._ID + " ASC";
+    public static final String SORT_CLAUSE_RATING = MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE + " DESC," + MoviesContract.MoviesEntry._ID + " ASC";
 
     private static final int MOVIE_LOADER = 0;
 
@@ -37,7 +40,6 @@ public class MovieListFragment extends Fragment implements android.app.LoaderMan
     private static final String STATE_GRID_POSITION = "state_grid_position";
     private static final String STATE_GRID_VIEW = "state_grid_view";
 
-    private String mSortOrder;
     private Callbacks mCallbacks = sDummyCallbacks;
     private MovieListAdapter mMovieListAdapter;
     private GridView mGridView;
@@ -107,16 +109,19 @@ public class MovieListFragment extends Fragment implements android.app.LoaderMan
         super.onSaveInstanceState(outState);
     }
 
-    public void setSortOrder(String sortOrder) {
-        mSortOrder = sortOrder;
-
+    public void setSortOrder(int sortOrder) {
         Bundle bundle = new Bundle();
-        bundle.putString(MovieListActivity.SORT_ORDER, sortOrder);
+        bundle.putInt(MovieListActivity.SORT_ORDER, sortOrder);
         getLoaderManager().restartLoader(MOVIE_LOADER, bundle, this);
 
-        SyncAdapterMovies.syncMoviesListImmediately(getActivity(), sortOrder.equals(MovieListActivity.SORT_ORDER_POPULARITY) ?
-                SyncAdapterMovies.SORT_BY_POPULAR :
-                SyncAdapterMovies.SORT_BY_RATING);
+        switch (sortOrder) {
+            case MovieListActivity.SORT_ORDER_POPULARITY:
+                SyncAdapterMovies.syncMoviesListImmediately(getActivity(), SyncAdapterMovies.SORT_BY_POPULAR);
+                break;
+            case MovieListActivity.SORT_ORDER_RATING:
+                SyncAdapterMovies.syncMoviesListImmediately(getActivity(), SyncAdapterMovies.SORT_BY_RATING);
+                break;
+        }
 
         mMovieListAdapter.notifyDataSetChanged();
     }
@@ -126,20 +131,14 @@ public class MovieListFragment extends Fragment implements android.app.LoaderMan
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        Bundle bundle = new Bundle();
-        if (mSortOrder != null) {
-            bundle.putString(MovieListActivity.SORT_ORDER, mSortOrder);
-        }
-        getLoaderManager().initLoader(MOVIE_LOADER, bundle, this);
-    }
-
-    @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        Uri provider = MoviesEntry.CONTENT_URI.buildUpon().build();
-        return new CursorLoader(getActivity(), provider, COLUMNS, null, null, bundle.getString(MovieListActivity.SORT_ORDER, MovieListActivity.SORT_ORDER_DEFAULT));
+        int sortOrder = bundle.getInt(MovieListActivity.SORT_ORDER, MovieListActivity.SORT_ORDER_DEFAULT);
+        if (sortOrder == MovieListActivity.SORT_ORDER_FAVORITES) {
+            return new CursorLoader(getActivity(), MoviesEntry.FAVORITES_CONTENT_URI, COLUMNS, null, null, null);
+        } else {
+            return new CursorLoader(getActivity(), MoviesEntry.CONTENT_URI, COLUMNS, null, null,
+                    sortOrder == MovieListActivity.SORT_ORDER_POPULARITY ? SORT_CLAUSE_POPULARITY : SORT_CLAUSE_RATING);
+        }
     }
 
     @Override
