@@ -141,6 +141,7 @@ public class MovieDetailFragment extends Fragment implements OnClickListener, Lo
                 String toastText = MessageFormat.format(getString(R.string.toast_add_to_favorites), title);
                 Toast.makeText(getActivity(), toastText, Toast.LENGTH_SHORT).show();
                 view.setVisibility(View.GONE);
+                ((View)view.getTag(R.id.LIST_ITEM_STAR_BLACK)).setVisibility(View.VISIBLE);
             }
         } else if ((tag = (String) view.getTag(R.id.SHARE_KEY)) != null) {
             shareTrailerUrl(tag, (String) view.getTag(R.id.SHARE_NAME));

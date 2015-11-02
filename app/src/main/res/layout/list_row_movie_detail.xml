@@ -22,7 +22,16 @@
             android:layout_height="46dp"
             android:layout_alignParentRight="true"
             android:layout_gravity="right"
-            android:src="@drawable/ic_star_rate" />
+            android:src="@drawable/ic_star_border" />
+
+        <ImageView
+            android:id="@+id/star_black"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="right"
+            android:src="@drawable/ic_star_black"
+            android:visibility="gone" />
 
     </RelativeLayout>
 

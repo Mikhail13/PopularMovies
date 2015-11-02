@@ -11,6 +11,7 @@
     <item name="LIST_ITEM_NAME" type="id" />
     <item name="LIST_ITEM_SIZE" type="id" />
     <item name="LIST_ITEM_STAR" type="id" />
+    <item name="LIST_ITEM_STAR_BLACK" type="id" />
     <item name="LIST_ITEM_THUMBNAIL" type="id" />
     <item name="LIST_ITEM_SHARE" type="id" />
     <item name="LIST_ITEM_OVERVIEW" type="id" />

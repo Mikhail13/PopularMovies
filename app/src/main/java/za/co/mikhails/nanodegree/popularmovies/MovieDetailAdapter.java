@@ -75,10 +75,13 @@ public class MovieDetailAdapter extends CursorAdapter {
                 view.setTag(R.id.LIST_ITEM_RELEASE_DATE, view.findViewById(R.id.release_date));
                 view.setTag(R.id.LIST_ITEM_VOTE_AVERAGE, view.findViewById(R.id.vote_average));
                 View star = view.findViewById(R.id.star);
+                View starBlack = view.findViewById(R.id.star_black);
                 if (mFavorite) {
                     star.setVisibility(View.GONE);
+                    starBlack.setVisibility(View.VISIBLE);
                 } else {
                     view.setTag(R.id.LIST_ITEM_STAR, star);
+                    star.setTag(R.id.LIST_ITEM_STAR_BLACK, starBlack);
                 }
                 break;
             case TRAILER:
