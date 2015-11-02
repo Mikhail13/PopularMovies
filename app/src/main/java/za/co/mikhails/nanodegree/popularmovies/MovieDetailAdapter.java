@@ -6,6 +6,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,8 +26,13 @@ public class MovieDetailAdapter extends CursorAdapter {
     private static final int TRAILER = 1;
     private static final int REVIEW = 2;
 
-    public MovieDetailAdapter(Context context, Cursor cursor, int flags) {
+    private OnClickListener mOnClickListener;
+    private boolean mFavorite;
+
+    public MovieDetailAdapter(Context context, Cursor cursor, int flags, OnClickListener onClickListener, boolean favorite) {
         super(context, cursor, flags);
+        this.mOnClickListener = onClickListener;
+        this.mFavorite = favorite;
     }
 
     @Override
@@ -68,6 +74,12 @@ public class MovieDetailAdapter extends CursorAdapter {
                 view.setTag(R.id.LIST_ITEM_POSTER, view.findViewById(R.id.poster));
                 view.setTag(R.id.LIST_ITEM_RELEASE_DATE, view.findViewById(R.id.release_date));
                 view.setTag(R.id.LIST_ITEM_VOTE_AVERAGE, view.findViewById(R.id.vote_average));
+                View star = view.findViewById(R.id.star);
+                if (mFavorite) {
+                    star.setVisibility(View.GONE);
+                } else {
+                    view.setTag(R.id.LIST_ITEM_STAR, star);
+                }
                 break;
             case TRAILER:
                 view = LayoutInflater.from(context).inflate(R.layout.list_row_trailer, parent, false);
@@ -75,6 +87,7 @@ public class MovieDetailAdapter extends CursorAdapter {
                 view.setTag(R.id.LIST_ITEM_NAME, view.findViewById(R.id.name));
                 view.setTag(R.id.LIST_ITEM_SIZE, view.findViewById(R.id.size));
                 view.setTag(R.id.LIST_ITEM_THUMBNAIL, view.findViewById(R.id.thumbnail));
+                view.setTag(R.id.LIST_ITEM_SHARE, view.findViewById(R.id.share));
                 break;
             case REVIEW:
                 view = LayoutInflater.from(context).inflate(R.layout.list_row_review, parent, false);
@@ -108,10 +121,18 @@ public class MovieDetailAdapter extends CursorAdapter {
 
                 String voteAverage = cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_VOTE_AVERAGE));
                 ((TextView) view.getTag(R.id.LIST_ITEM_VOTE_AVERAGE)).setText(Utils.formatVoteAverage(context, voteAverage));
+
+                View star = (View) view.getTag(R.id.LIST_ITEM_STAR);
+                if (star != null) {
+                    star.setOnClickListener(mOnClickListener);
+                    star.setTag(R.id.FAVORITES_KEY, cursor.getString(cursor.getColumnIndex(MoviesEntry.COLUMN_MOVIE_ID)));
+                }
+
                 break;
             case TRAILER:
+                String trailerName = cursor.getString(cursor.getColumnIndex(TrailersEntry.COLUMN_NAME));
+                ((TextView) view.getTag(R.id.LIST_ITEM_NAME)).setText(trailerName);
                 ((TextView) view.getTag(R.id.LIST_ITEM_TYPE)).setText(cursor.getString(cursor.getColumnIndex(TrailersEntry.COLUMN_TYPE)));
-                ((TextView) view.getTag(R.id.LIST_ITEM_NAME)).setText(cursor.getString(cursor.getColumnIndex(TrailersEntry.COLUMN_NAME)));
                 ((TextView) view.getTag(R.id.LIST_ITEM_SIZE)).setText(String.valueOf(cursor.getInt(cursor.getColumnIndex(TrailersEntry.COLUMN_SIZE))));
 
                 ImageView imageView = (ImageView) view.getTag(R.id.LIST_ITEM_THUMBNAIL);
@@ -119,8 +140,15 @@ public class MovieDetailAdapter extends CursorAdapter {
                 if (trailerKey != null) {
                     String url = MessageFormat.format(context.getString(R.string.youtube_thumbnail_url), trailerKey);
                     Picasso.with(context).load(url).into(imageView);
+                    imageView.setOnClickListener(mOnClickListener);
+                    imageView.setTag(R.id.TRAILER_KEY, trailerKey);
                 }
-                view.setTag(R.id.TRAILER_KEY, trailerKey);
+
+                View shareImageView = (View) view.getTag(R.id.LIST_ITEM_SHARE);
+                shareImageView.setOnClickListener(mOnClickListener);
+                shareImageView.setTag(R.id.SHARE_KEY, trailerKey);
+                shareImageView.setTag(R.id.SHARE_NAME, trailerName);
+
                 break;
             case REVIEW:
                 ((TextView) view.getTag(R.id.LIST_ITEM_AUTHOR)).setText(cursor.getString(cursor.getColumnIndex(ReviewsEntry.COLUMN_AUTHOR)));
@@ -129,5 +157,4 @@ public class MovieDetailAdapter extends CursorAdapter {
                 break;
         }
     }
-
 }

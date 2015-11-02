@@ -38,5 +38,4 @@ public class MovieListAdapter extends CursorAdapter {
         }
         view.setTag(R.id.MOVIE_ID, cursor.getInt(MovieListFragment.COLUMN_MOVIE_ID));
     }
-
 }

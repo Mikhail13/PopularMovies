@@ -23,6 +23,7 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
     private MenuItem mItemRating;
     private MenuItem mItemFavorites;
     private int mSortOrder;
+    private MovieDetailFragment mMovieDetailFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +52,9 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
             bundle.putInt(MovieDetailFragment.FAVORITES, mSortOrder);
         }
         if (mTwoPane) {
-            MovieDetailFragment fragment = new MovieDetailFragment();
-            fragment.setArguments(bundle);
-            getFragmentManager().beginTransaction().replace(R.id.movie_detail_container, fragment).commit();
+            mMovieDetailFragment = new MovieDetailFragment();
+            mMovieDetailFragment.setArguments(bundle);
+            getFragmentManager().beginTransaction().replace(R.id.movie_detail_container, mMovieDetailFragment).commit();
         } else {
             Intent detailIntent = new Intent(this, MovieDetailActivity.class);
             detailIntent.putExtras(bundle);
@@ -106,6 +107,9 @@ public class MovieListActivity extends AppCompatActivity implements MovieListFra
 
     private void updateSortOrder(int sortOrder) {
         mSortOrder = sortOrder;
+        if (mTwoPane && mMovieDetailFragment != null) {
+            getFragmentManager().beginTransaction().remove(mMovieDetailFragment).commit();
+        }
         ((MovieListFragment) getFragmentManager().findFragmentById(R.id.movie_list)).setSortOrder(sortOrder);
     }
 
